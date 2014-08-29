@@ -3,27 +3,24 @@ Convert hex to base64
 http://cryptopals.com/sets/1/challenges/1/
 */
 
-var HEX_CHARS = '0123456789abcdef'.split('');
+var HEX_CHAR_MAP = {};
+
+'0123456789abcdef'.split('').forEach(function(chr, index) {
+  HEX_CHAR_MAP[chr] = index;
+});
+
 var BASE64_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'.split('');
 
 function stoa(str) {
   var buffer = new ArrayBuffer(str.length / 2);
   var view = new Uint8Array(buffer);
   var bit = 0;
-  // var fourBitMask = 0xf; // binary 1111
   var viewIndex = 0;
 
   for (var i = 0, len = str.length; i < len; i++) {
-    var value = HEX_CHARS.indexOf(str[i]) << bit;
-
-    console.log('---');
-    console.log('viewIndex, view[viewIndex]', viewIndex, createBinaryString(view[viewIndex]));
-    console.log('value', createBinaryString(value));
-    // console.log('data & mask', createBinaryString(data & mask));
-    // console.log('(data & mask) >>> bit', createBinaryString((data & mask) >>> bit));
+    var value = HEX_CHAR_MAP[str[i]] << bit;
 
     view[viewIndex] |= value;
-
     bit += 4;
 
     if (bit >= 8) {
@@ -53,11 +50,11 @@ function hexToBase64(hex) {
     var mask = sixBitMask << bit;
     var data = buffer[i] + buffer[i + 1];
 
-    // console.log('---');
-    // console.log('mask', createBinaryString(mask));
-    // console.log('data', createBinaryString(data));
-    // console.log('data & mask', createBinaryString(data & mask));
-    // console.log('(data & mask) >>> bit', createBinaryString((data & mask) >>> bit));
+    console.log('---');
+    console.log('mask', createBinaryString(mask));
+    console.log('data', createBinaryString(data));
+    console.log('data & mask', createBinaryString(data & mask));
+    console.log('(data & mask) >>> bit', createBinaryString((data & mask) >>> bit));
 
     b64.push(BASE64_CHARS[(data & mask) >> bit]);
 
