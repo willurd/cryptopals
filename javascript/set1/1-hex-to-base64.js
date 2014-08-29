@@ -11,7 +11,15 @@ var HEX_CHAR_MAP = {};
 
 var BASE64_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'.split('');
 
-function stoa(str) {
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
+function createBinaryString (nMask) {
+  // nMask must be between -2147483648 and 2147483647
+  for (var nFlag = 0, nShifted = nMask, sMask = ""; nFlag < 32;
+       nFlag++, sMask += String(nShifted >>> 31), nShifted <<= 1);
+  return sMask;
+}
+
+function hexToArrayBuffer(str) {
   var buffer = new ArrayBuffer(str.length / 2);
   var view = new Uint8Array(buffer);
   var bit = 0;
@@ -32,16 +40,8 @@ function stoa(str) {
   return buffer;
 }
 
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
-function createBinaryString (nMask) {
-  // nMask must be between -2147483648 and 2147483647
-  for (var nFlag = 0, nShifted = nMask, sMask = ""; nFlag < 32;
-       nFlag++, sMask += String(nShifted >>> 31), nShifted <<= 1);
-  return sMask;
-}
-
 function hexToBase64(hex) {
-  var buffer = stoa(hex);
+  var buffer = hexToArrayBuffer(hex);
   var bit = 1;
   var sixBitMask = 0x3f; // binary 111111
   var b64 = [];
@@ -50,11 +50,11 @@ function hexToBase64(hex) {
     var mask = sixBitMask << bit;
     var data = buffer[i] + buffer[i + 1];
 
-    console.log('---');
-    console.log('mask', createBinaryString(mask));
-    console.log('data', createBinaryString(data));
-    console.log('data & mask', createBinaryString(data & mask));
-    console.log('(data & mask) >>> bit', createBinaryString((data & mask) >>> bit));
+    // console.log('---');
+    // console.log('mask', createBinaryString(mask));
+    // console.log('data', createBinaryString(data));
+    // console.log('data & mask', createBinaryString(data & mask));
+    // console.log('(data & mask) >>> bit', createBinaryString((data & mask) >>> bit));
 
     b64.push(BASE64_CHARS[(data & mask) >> bit]);
 
@@ -76,12 +76,13 @@ function hexToBase64(hex) {
 }
 
 function test(hex, b64) {
-  console.log(hexToBase64(hex));
-  // if (hexToBase64(hex) === b64) {
-  //   console.log('pass');
-  // } else {
-  //   console.log('fail');
-  // }
+  var actual = hexToBase64(hex);
+
+  if (actual === b64) {
+    console.log('pass');
+  } else {
+    console.log('fail: expected "' + b64 + '" got "' + actual + '"');
+  }
 }
 
 test(
